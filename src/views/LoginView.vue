@@ -63,7 +63,6 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { loginUser } from '@/api/user'
 import { ElMessage } from 'element-plus'
 import { User, Lock } from '@element-plus/icons-vue'
@@ -74,8 +73,8 @@ import main1 from '@/assets/banners/main1.jpg'
 import main2 from '@/assets/banners/main2.jpg'
 import main3 from '@/assets/banners/main3.jpg'
 import main4 from '@/assets/banners/main4.jpg'
+import { useRouter } from 'vue-router'
 
-const router = useRouter()
 const loginForm = ref({
   username: '',
   password: '',
@@ -116,6 +115,7 @@ const rules = ref({
 })
 
 const loginFormRef = ref(null)
+const router = useRouter()
 
 const handleLogin = async () => {
   if (!loginFormRef.value) return
@@ -137,7 +137,7 @@ const handleLogin = async () => {
         localStorage.setItem('token', response.data.token)
         localStorage.setItem('user', JSON.stringify(response.data.user))
         ElMessage.success('登录成功')
-        router.push('/')
+        router.push('/') // 跳转到Vue应用内部的根路径
       } catch (error) {
         ElMessage.error(error.message || '登录失败，请稍后再试')
         console.error(error)
