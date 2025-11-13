@@ -13,12 +13,13 @@
               <el-option label="已取消" value="cancelled" />
               <el-option label="已过号" value="missed" />
             </el-select>
-            <el-button type="primary" @click="loadAppointments" :loading="loading">查询</el-button>
+            <el-button type="primary" @click="loadAppointments" :loading="loading" icon="el-icon-search">查询</el-button>
           </div>
         </div>
       </template>
 
-      <el-table :data="appointments" v-loading="loading" empty-text="暂无预约记录" class="appt-table">
+      <el-skeleton :rows="5" animated v-if="loading" />
+      <el-table :data="appointments" v-else empty-text="暂无预约记录" class="appt-table">
         <el-table-column prop="appt_id" label="挂号ID" min-width="110" />
         <el-table-column prop="serial_number" label="接诊序号" min-width="100" />
         <el-table-column label="状态" min-width="110">
@@ -36,15 +37,16 @@
             <el-tag :type="row.is_valid === 1 ? 'success' : 'info'">{{ row.is_valid === 1 ? '有效' : '已作废' }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" fixed="right" min-width="120">
+        <el-table-column label="操作" fixed="right" min-width="180">
           <template #default="{ row }">
-            <el-button size="small" @click="openDetail(row)">详情</el-button>
+            <el-button size="small" type="info" plain @click="openDetail(row)" icon="el-icon-document">详情</el-button>
             <el-button
               size="small"
               type="danger"
               plain
               :disabled="!canCancel(row.status)"
               @click="confirmCancel(row)"
+              icon="el-icon-close"
             >取消预约</el-button>
           </template>
         </el-table-column>
@@ -53,7 +55,7 @@
       <div class="pager">
         <el-pagination
           background
-          layout="prev, pager, next, jumper"
+          layout="prev, pager, next, jumper, total"
           :total="pagination.total"
           :page-size="pagination.limit"
           :current-page="pagination.page"
@@ -62,17 +64,33 @@
       </div>
     </el-card>
 
-    <el-dialog v-model="detailVisible" title="预约详情" width="520px">
+    <el-dialog v-model="detailVisible" title="预约详情" width="600px" class="detail-dialog">
       <div v-if="detail" class="detail-box">
-        <div class="detail-row"><span class="label">挂号ID：</span><span>{{ detail.appt_id }}</span></div>
-        <div class="detail-row"><span class="label">患者ID：</span><span>{{ detail.user_id }}</span></div>
-        <div class="detail-row"><span class="label">接诊序号：</span><span>{{ detail.serial_number }}</span></div>
-        <div class="detail-row"><span class="label">预约提交时间：</span><span>{{ formatDateTime(detail.appt_time) }}</span></div>
-        <div class="detail-row"><span class="label">状态：</span>
+        <div class="detail-item">
+          <span class="label">挂号ID：</span><span>{{ detail.appt_id }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">患者ID：</span><span>{{ detail.user_id }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">接诊序号：</span><span>{{ detail.serial_number }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">预约提交时间：</span><span>{{ formatDateTime(detail.appt_time) }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">状态：</span>
           <el-tag :type="statusTagType(detail.status)">{{ statusText(detail.status) }}</el-tag>
         </div>
-        <div class="detail-row"><span class="label">记录有效：</span>
+        <div class="detail-item">
+          <span class="label">记录有效：</span>
           <el-tag :type="detail.is_valid === 1 ? 'success' : 'info'">{{ detail.is_valid === 1 ? '有效' : '已作废' }}</el-tag>
+        </div>
+        <div class="detail-item" v-if="detail.waitingCount !== undefined">
+          <span class="label">前方等待：</span><span>{{ detail.waitingCount }}人</span>
+        </div>
+        <div class="detail-item" v-if="detail.estimatedTime">
+          <span class="label">预计就诊时间：</span><span>{{ detail.estimatedTime }}</span>
         </div>
       </div>
       <template #footer>
@@ -80,7 +98,7 @@
       </template>
     </el-dialog>
   </div>
-  <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div> <!-- 显示错误消息 -->
+  <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
 </template>
 
 <script setup>
@@ -224,51 +242,85 @@ const confirmCancel = async (row) => {
 
 <style scoped>
 .appointments-page {
-  max-width: 1080px;
-  margin: 24px auto;
-  padding: 0 16px;
+  max-width: 1200px; /* 增加最大宽度 */
+  margin: 30px auto; /* 调整外边距 */
+  padding: 0 20px; /* 调整内边距 */
 }
 .page-card {
-  border-radius: 12px;
+  border-radius: 16px; /* 增大圆角 */
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08); /* 增加阴影 */
 }
 .card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding-bottom: 15px; /* 增加底部填充 */
+  border-bottom: 1px solid #ebeef5; /* 添加底部边框 */
+  margin-bottom: 20px; /* 增加底部外边距 */
 }
 .title {
-  font-size: 20px;
-  font-weight: 600;
-  color: #0a2540;
+  font-size: 24px; /* 增大标题字号 */
+  font-weight: 700; /* 加粗标题 */
+  color: #2c3e50; /* 调整标题颜色 */
 }
 .filters {
   display: flex;
-  gap: 12px;
+  gap: 15px; /* 调整间距 */
   align-items: center;
 }
 .status-select {
-  width: 180px;
+  width: 160px; /* 调整选择框宽度 */
 }
 .appt-table {
-  margin-top: 8px;
+  margin-top: 0; /* 移除顶部外边距，因为 card-header 已经有 margin-bottom */
+  border: 1px solid #ebeef5; /* 添加表格边框 */
+  border-radius: 8px; /* 表格圆角 */
+  overflow: hidden; /* 隐藏超出部分以显示圆角 */
+}
+.appt-table .el-table__header-wrapper th {
+  background-color: #f5f7fa; /* 表头背景色 */
+  color: #606266;
+  font-weight: 600;
+}
+.appt-table .el-table__cell {
+  padding: 12px 0; /* 调整行高 */
 }
 .pager {
   display: flex;
   justify-content: flex-end;
-  padding: 16px 8px 8px;
+  padding: 20px 0 0; /* 调整内边距 */
+}
+.el-button--small {
+  padding: 7px 15px; /* 调整按钮大小 */
+  font-size: 13px;
+}
+.detail-dialog .el-dialog__title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #2c3e50;
 }
 .detail-box {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* 响应式布局 */
+  gap: 15px 20px; /* 调整间距 */
+  padding: 10px 0;
 }
-.detail-row .label {
+.detail-item {
+  display: flex;
+  align-items: center;
+  font-size: 15px;
+  color: #333;
+}
+.detail-item .label {
+  font-weight: 600;
   color: #606266;
-  margin-right: 8px;
+  margin-right: 10px;
 }
 .error-message {
   color: #f56c6c;
-  margin-top: 10px;
+  margin-top: 20px;
   text-align: center;
+  font-size: 1.1em;
+  font-weight: 500;
 }
 </style>
