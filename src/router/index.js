@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'  // 修改导入路径
 import LoginView from '../views/LoginView.vue'  // 修改导入路径
 import RegisterView from '../views/RegisterView.vue'  // 修改导入路径
+import AppointmentView from '../views/AppointmentView.vue' // 导入预约视图
+const AppointmentRecordsView = () => import('../views/AppointmentRecordsView.vue')
 
 const routes = [
     {
@@ -21,6 +23,18 @@ const routes = [
         name: 'Register',
         component: RegisterView,  // 更新组件引用
         meta: { requiresAuth: false }
+    },
+    {
+        path: '/appointments',
+        name: 'Appointments',
+        component: AppointmentView,
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/appointment-records',
+        name: 'AppointmentRecords',
+        component: AppointmentRecordsView,
+        meta: { requiresAuth: true }
     }
 ]
 const router = createRouter({

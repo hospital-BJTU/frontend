@@ -12,23 +12,23 @@
 
 <script setup>
 import { ElMessage } from 'element-plus'
+import { useRouter } from 'vue-router' // 导入 useRouter
+
+const router = useRouter() // 在顶层获取 router 实例
 
 const goToScheduleSearch = () => {
   ElMessage.info('跳转到查询可预约班次页面')
-  // TODO: Implement actual navigation to schedule search page
-  // router.push('/schedule-search')
+  router.push('/appointments') // 导航到预约页面
 }
 
 const goToAppointmentBooking = () => {
   ElMessage.info('跳转到进行预约页面')
-  // TODO: Implement actual navigation to appointment booking page
-  // router.push('/appointment-booking')
+  router.push('/appointments') // 导航到预约页面
 }
 
 const goToAppointmentRecords = () => {
   ElMessage.info('跳转到查询预约记录页面')
-  // TODO: Implement actual navigation to appointment records page
-  // router.push('/appointment-records')
+  router.push('/appointment-records') // 导航到预约记录页面
 }
 </script>
 
