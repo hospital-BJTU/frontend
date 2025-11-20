@@ -134,10 +134,20 @@ const handleLogin = async () => {
         }
 
         const response = await loginUser(loginForm.value)
-        localStorage.setItem('token', response.data.token)
-        localStorage.setItem('user', JSON.stringify(response.data.user))
+        if (rememberMe.value) {
+          localStorage.setItem('token', response.data.token)
+          localStorage.setItem('user', JSON.stringify(response.data.user))
+        } else {
+          sessionStorage.setItem('token', response.data.token)
+          sessionStorage.setItem('user', JSON.stringify(response.data.user))
+        }
         ElMessage.success('登录成功')
-        if (response.data.user && response.data.user.role === 'doctor') {
+        
+        const userRole = response.data.user ? response.data.user.role : null;
+
+        if (userRole === 'admin') {
+          router.push('/admin')
+        } else if (userRole === 'doctor') {
           router.push('/doctor')
         } else {
           router.push('/')

@@ -50,8 +50,32 @@ export const doctorCompleteAppointment = (apptId) => {
 
 export const getDoctorQueue = (params = {}) => {
   return request({
-    url: '/appointments/doctor/queue',
+    url: '/doctor/queue',
     method: 'GET',
     params
+  })
+}
+
+export const getDoctorScheduledDates = (params = {}) => {
+  return request({
+    url: '/doctor/schedules/calendar',
+    method: 'GET',
+    params
+  })
+}
+
+export const getDoctorScheduleDetailsByDate = (params = {}) => {
+  return request({
+    url: '/doctor/schedules/details',
+    method: 'GET',
+    params
+  })
+}
+
+export const requestScheduleLeave = (scheduleId, data = {}) => {
+  return request({
+    url: `/doctor/schedules/${scheduleId}/leave`,
+    method: 'PUT',
+    data
   })
 }

@@ -5,6 +5,8 @@ import RegisterView from '../views/RegisterView.vue'  // 修改导入路径
 import AppointmentView from '../views/AppointmentView.vue' // 导入预约视图
 const AppointmentRecordsView = () => import('../views/AppointmentRecordsView.vue')
 import DoctorDashboardView from '../views/DoctorDashboardView.vue'
+const DoctorWorkView = () => import('../views/DoctorWorkView.vue')
+import AdminDashboardView from '../views/AdminDashboardView.vue' // 导入管理员视图
 
 const routes = [
     {
@@ -17,7 +19,29 @@ const routes = [
         path: '/doctor',
         name: 'DoctorDashboard',
         component: DoctorDashboardView,
-        meta: { requiresAuth: true }
+        meta: { requiresAuth: true, roles: ['doctor'] }
+    },
+    {
+        path: '/doctor/work',
+        name: 'DoctorWork',
+        component: DoctorWorkView,
+        meta: { requiresAuth: true, roles: ['doctor'] }
+    },
+    {
+        path: '/admin',
+        name: 'AdminDashboard',
+        component: AdminDashboardView,
+        meta: { requiresAuth: true, roles: ['admin'] }, // 假设只有管理员可以访问
+        children: [
+            { path: 'dashboard', name: 'AdminDashboardHome', component: AdminDashboardView, meta: { requiresAuth: true, roles: ['admin'] } },
+            { path: 'users', name: 'AdminUsers', component: AdminDashboardView, meta: { requiresAuth: true, roles: ['admin'] } },
+            { path: 'roles', name: 'AdminRoles', component: AdminDashboardView, meta: { requiresAuth: true, roles: ['admin'] } },
+            { path: 'doctors', name: 'AdminDoctors', component: AdminDashboardView, meta: { requiresAuth: true, roles: ['admin'] } },
+            { path: 'departments', name: 'AdminDepartments', component: AdminDashboardView, meta: { requiresAuth: true, roles: ['admin'] } },
+            { path: 'schedules', name: 'AdminSchedules', component: AdminDashboardView, meta: { requiresAuth: true, roles: ['admin'] } },
+            { path: 'appointments', name: 'AdminAppointments', component: AdminDashboardView, meta: { requiresAuth: true, roles: ['admin'] } },
+            { path: 'logs', name: 'AdminLogs', component: AdminDashboardView, meta: { requiresAuth: true, roles: ['admin'] } },
+        ]
     },
     {
         path: '/login',
@@ -51,10 +75,10 @@ const router = createRouter({
 
 // 路由守卫
 router.beforeEach((to, from, next) => {
-    const isAuthenticated = !!localStorage.getItem('token')
+    const isAuthenticated = !!(sessionStorage.getItem('token') || localStorage.getItem('token'))
     let role = null
     try {
-        const u = localStorage.getItem('user')
+        const u = sessionStorage.getItem('user') || localStorage.getItem('user')
         if (u) role = JSON.parse(u).role
     } catch (e) {
         role = null
@@ -65,11 +89,12 @@ router.beforeEach((to, from, next) => {
     } else if ((to.path === '/login' || to.path === '/register') && isAuthenticated) {
         if (role === 'doctor') next('/doctor')
         else next('/')
-    } else if (to.path === '/doctor' && role !== 'doctor') {
+    } else if (to.meta.roles && (!role || !to.meta.roles.includes(role))) {
         next('/')
     } else {
         next()
     }
 })
+
 
 export default router

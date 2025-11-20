@@ -12,7 +12,7 @@ request.interceptors.request.use(
     config => {
         // 自动添加token
         config.headers = config.headers || {}
-        const token = localStorage.getItem('token')
+        const token = sessionStorage.getItem('token') || localStorage.getItem('token')
         if (token) {
             config.headers.Authorization = `Bearer ${token}`
         }
@@ -48,6 +48,8 @@ request.interceptors.response.use(
             if (res.status === 401) {
                 localStorage.removeItem('token')
                 localStorage.removeItem('user')
+                sessionStorage.removeItem('token')
+                sessionStorage.removeItem('user')
             }
         } else {
             ElMessage.error('网络错误，请检查网络连接')

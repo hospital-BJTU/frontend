@@ -82,6 +82,8 @@ const handleLogout = async () => {
     await ElMessageBox.confirm('确认退出登录？', '提示', { type: 'warning' })
     localStorage.removeItem('token')
     localStorage.removeItem('user')
+    sessionStorage.removeItem('token')
+    sessionStorage.removeItem('user')
     ElMessage.success('已退出登录')
     router.push('/login')
   } catch (e) {
