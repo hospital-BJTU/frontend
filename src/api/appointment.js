@@ -26,3 +26,32 @@ export const cancelAppointment = (apptId) => {
     method: 'PUT'
   })
 }
+
+export const doctorCallAppointment = (apptId) => {
+  return request({
+    url: `/appointments/${apptId}/call`,
+    method: 'PUT'
+  })
+}
+
+export const doctorMissAppointment = (apptId) => {
+  return request({
+    url: `/appointments/${apptId}/miss`,
+    method: 'PUT'
+  })
+}
+
+export const doctorCompleteAppointment = (apptId) => {
+  return request({
+    url: `/appointments/${apptId}/complete`,
+    method: 'PUT'
+  })
+}
+
+export const getDoctorQueue = (params = {}) => {
+  return request({
+    url: '/appointments/doctor/queue',
+    method: 'GET',
+    params
+  })
+}

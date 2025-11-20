@@ -37,12 +37,9 @@
               <el-input
                   v-model="loginForm.captcha"
                   placeholder="请输入验证码"
-                  :prefix-icon="Lock"
+                  :prefix-icon="CircleCheck"
               ></el-input>
-              <div class="captcha-box">
-                <img :src="captchaImage" alt="点击刷新验证码" class="captcha-image" @click="refreshCaptcha" />
-                <el-button type="primary" link @click="refreshCaptcha" class="captcha-refresh">看不清？换一张</el-button>
-              </div>
+              <img :src="captchaImageSrc" alt="验证码" class="captcha-image" @click="refreshCaptcha" />
             </div>
           </el-form-item>
 
@@ -66,29 +63,44 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { loginUser } from '@/api/user'
 import { ElMessage } from 'element-plus'
 import { User, Lock } from '@element-plus/icons-vue'
+import { CircleCheck } from '@element-plus/icons-vue' // 导入验证码图标
+import { generateCaptcha, verifyCaptcha as apiVerifyCaptcha } from '@/api/captcha' // 导入验证码API
 import BannerCarousel from '@/components/BannerCarousel.vue'
 import main1 from '@/assets/banners/main1.jpg'
 import main2 from '@/assets/banners/main2.jpg'
 import main3 from '@/assets/banners/main3.jpg'
 import main4 from '@/assets/banners/main4.jpg'
-import { generateCaptcha, verifyCaptcha } from '@/api/captcha'
+import { useRouter } from 'vue-router'
 
-const router = useRouter()
 const loginForm = ref({
   username: '',
   password: '',
   captcha: ''
 })
+const captchaImageSrc = ref('')
+const currentCaptchaId = ref(null)
 const rememberMe = ref(false)
-const captchaId = ref('')
-const captchaImage = ref('')
 
 // 左侧轮播使用本地图片资源（已放置于 src/assets/banners/）
 const carouselImages = [main1, main2, main3, main4]
+
+// 生成验证码
+const refreshCaptcha = async () => {
+  try {
+    const res = await generateCaptcha()
+    if (res.success) {
+      captchaImageSrc.value = res.data.image
+      currentCaptchaId.value = res.data.captchaId
+      loginForm.value.captcha = '' // 清空验证码输入框
+    }
+  } catch (error) {
+    ElMessage.error('验证码生成失败，正在重试')
+    setTimeout(() => { refreshCaptcha() }, 1000)
+  }
+}
 
 const rules = ref({
   username: [
@@ -103,41 +115,42 @@ const rules = ref({
 })
 
 const loginFormRef = ref(null)
+const router = useRouter()
 
 const handleLogin = async () => {
   if (!loginFormRef.value) return
   await loginFormRef.value.validate(async (valid) => {
     if (valid) {
       try {
-        // 先校验验证码
-        await verifyCaptcha({ captchaId: captchaId.value, code: loginForm.value.captcha })
-        // 验证通过后再登录
+        // 1. 验证验证码
+        const captchaRes = await apiVerifyCaptcha({
+          captchaId: currentCaptchaId.value,
+          code: loginForm.value.captcha
+        })
+        if (!captchaRes.success) {
+          ElMessage.error(captchaRes.message || '验证码错误')
+          refreshCaptcha() // 验证失败，刷新验证码
+          return // 停止登录流程
+        }
+
         const response = await loginUser(loginForm.value)
         localStorage.setItem('token', response.data.token)
         localStorage.setItem('user', JSON.stringify(response.data.user))
         ElMessage.success('登录成功')
-        router.push('/')
+        if (response.data.user && response.data.user.role === 'doctor') {
+          router.push('/doctor')
+        } else {
+          router.push('/')
+        }
       } catch (error) {
         ElMessage.error(error.message || '登录失败，请稍后再试')
         console.error(error)
-        // 刷新验证码，避免重复使用
-        refreshCaptcha()
       }
     }
   })
 }
 
-// 刷新验证码
-const refreshCaptcha = async () => {
-  try {
-    const res = await generateCaptcha()
-    captchaId.value = res.data.captchaId
-    captchaImage.value = res.data.image
-  } catch (e) {
-    ElMessage.error(e.message || '获取验证码失败')
-  }
-}
-
+// 页面加载时生成验证码
 onMounted(() => {
   refreshCaptcha()
 })
@@ -212,20 +225,13 @@ h2 {
 .captcha-row .el-input {
   flex: 1;
 }
-.captcha-box {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
 .captcha-image {
-  width: 120px;
   height: 40px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
+  width: 120px; /* 确保图片宽度和后端定义一致 */
   cursor: pointer;
-}
-.captcha-refresh {
-  padding: 0;
+  vertical-align: middle;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
 }
 @media (max-width: 960px) {
   .overlay-right {
@@ -237,7 +243,8 @@ h2 {
     font-size: clamp(22px, 6vw, 28px);
   }
   .captcha-label {
-    min-width: 0;
+    min-width: 96px;
+    height: 40px;
   }
 }
 </style>

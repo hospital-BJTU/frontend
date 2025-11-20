@@ -11,6 +11,7 @@ const request = axios.create({
 request.interceptors.request.use(
     config => {
         // 自动添加token
+        config.headers = config.headers || {}
         const token = localStorage.getItem('token')
         if (token) {
             config.headers.Authorization = `Bearer ${token}`
@@ -27,16 +28,30 @@ request.interceptors.request.use(
 request.interceptors.response.use(
     response => {
         const res = response.data
-        // 同时支持后端两种成功返回格式：{ code: 200/201, ... } 或 { success: true, ... }
-        const isSuccess = res?.code === 200 || res?.code === 201 || res?.success === true
-        if (!isSuccess) {
-            ElMessage.error(res.message || '操作失败')
-            return Promise.reject(new Error(res.message || 'Error'))
+        // 如果后端返回的不是成功状态，或者success字段为false，则抛出错误
+        // 注意：某些成功操作（如验证码生成）可能没有code字段，只有success字段
+        if (res.success === false) {
+            ElMessage.error(res.message || '操作失败');
+            return Promise.reject(new Error(res.message || 'Error'));
+        } else if (res.code !== undefined && res.code !== 200 && res.code !== 201) {
+            // 如果存在code字段，并且不是200/201，也认为是错误
+            ElMessage.error(res.message || '操作失败');
+            return Promise.reject(new Error(res.message || 'Error'));
         }
         return res
     },
     error => {
-        ElMessage.error('网络错误，请检查网络连接')
+        const res = error.response
+        if (res) {
+            const msg = (res.data && res.data.message) ? res.data.message : `请求失败(${res.status})`
+            ElMessage.error(msg)
+            if (res.status === 401) {
+                localStorage.removeItem('token')
+                localStorage.removeItem('user')
+            }
+        } else {
+            ElMessage.error('网络错误，请检查网络连接')
+        }
         return Promise.reject(error)
     }
 )

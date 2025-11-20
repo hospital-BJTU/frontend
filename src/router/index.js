@@ -2,14 +2,21 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'  // 修改导入路径
 import LoginView from '../views/LoginView.vue'  // 修改导入路径
 import RegisterView from '../views/RegisterView.vue'  // 修改导入路径
-// 新增预约记录页面按需加载
+import AppointmentView from '../views/AppointmentView.vue' // 导入预约视图
 const AppointmentRecordsView = () => import('../views/AppointmentRecordsView.vue')
+import DoctorDashboardView from '../views/DoctorDashboardView.vue'
 
 const routes = [
     {
         path: '/',
         name: 'Home',
         component: HomeView,  // 更新组件引用
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/doctor',
+        name: 'DoctorDashboard',
+        component: DoctorDashboardView,
         meta: { requiresAuth: true }
     },
     {
@@ -26,6 +33,12 @@ const routes = [
     },
     {
         path: '/appointments',
+        name: 'Appointments',
+        component: AppointmentView,
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/appointment-records',
         name: 'AppointmentRecords',
         component: AppointmentRecordsView,
         meta: { requiresAuth: true }
@@ -39,10 +52,20 @@ const router = createRouter({
 // 路由守卫
 router.beforeEach((to, from, next) => {
     const isAuthenticated = !!localStorage.getItem('token')
+    let role = null
+    try {
+        const u = localStorage.getItem('user')
+        if (u) role = JSON.parse(u).role
+    } catch (e) {
+        role = null
+    }
 
     if (to.meta.requiresAuth && !isAuthenticated) {
         next('/login')
     } else if ((to.path === '/login' || to.path === '/register') && isAuthenticated) {
+        if (role === 'doctor') next('/doctor')
+        else next('/')
+    } else if (to.path === '/doctor' && role !== 'doctor') {
         next('/')
     } else {
         next()

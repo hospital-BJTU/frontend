@@ -1,28 +1,19 @@
-// src/api/captcha.js
 import request from './request'
 
 // 生成验证码
-export const generateCaptcha = () => {
+export function generateCaptcha() {
   return request({
     url: '/captcha/generate',
-    method: 'GET'
+    method: 'get',
+    params: { _t: Date.now() }
   })
 }
 
 // 验证验证码
-export const verifyCaptcha = (payload) => {
-  // payload: { captchaId: string, code: string }
+export function verifyCaptcha(data) {
   return request({
     url: '/captcha/verify',
-    method: 'POST',
-    data: payload
-  })
-}
-
-// 调试用：查看验证码统计
-export const getCaptchaStats = () => {
-  return request({
-    url: '/captcha/stats',
-    method: 'GET'
+    method: 'post',
+    data
   })
 }
