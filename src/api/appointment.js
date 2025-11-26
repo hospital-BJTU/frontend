@@ -5,7 +5,7 @@ import request from './request'
 export const getUserAppointments = (params = {}) => {
   const { status, page = 1, limit = 10 } = params
   return request({
-    url: '/appointments/user',
+    url: '/user/appointments',
     method: 'GET',
     params: { status, page, limit }
   })
@@ -14,7 +14,7 @@ export const getUserAppointments = (params = {}) => {
 // 查询预约详情
 export const getAppointmentDetail = (apptId) => {
   return request({
-    url: `/appointments/${apptId}`,
+    url: `/user/appointments/${apptId}`,
     method: 'GET'
   })
 }
@@ -22,28 +22,28 @@ export const getAppointmentDetail = (apptId) => {
 // 取消预约（如需）
 export const cancelAppointment = (apptId) => {
   return request({
-    url: `/appointments/${apptId}/cancel`,
+    url: `/user/appointments/${apptId}/cancel`,
     method: 'PUT'
   })
 }
 
 export const doctorCallAppointment = (apptId) => {
   return request({
-    url: `/appointments/${apptId}/call`,
+    url: `/doctor/appointments/${apptId}/call`,
     method: 'PUT'
   })
 }
 
 export const doctorMissAppointment = (apptId) => {
   return request({
-    url: `/appointments/${apptId}/miss`,
+    url: `/doctor/appointments/${apptId}/miss`,
     method: 'PUT'
   })
 }
 
 export const doctorCompleteAppointment = (apptId) => {
   return request({
-    url: `/appointments/${apptId}/complete`,
+    url: `/doctor/appointments/${apptId}/complete`,
     method: 'PUT'
   })
 }

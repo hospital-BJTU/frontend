@@ -33,7 +33,7 @@
       <h3>查询结果</h3>
       <ul>
         <li v-for="schedule in schedules" :key="schedule.scheduleId" @click="selectSchedule(schedule)" :class="{ selected: selectedSchedule && selectedSchedule.scheduleId === schedule.scheduleId }">
-          {{ schedule.scheduleDate }} - {{ schedule.timeSlot }} ({{ schedule.doctorName }} - {{ schedule.deptName }})
+          {{ schedule.scheduleDate }} - {{ schedule.timeSlot }} ({{ schedule.doctorName }} - {{ schedule.departmentName }})
           <br>
           剩余号源: {{ schedule.availableCount }} / {{ schedule.maxCount }}
           <span v-if="schedule.availableCount === 0" class="no-slots"> (已无号源)</span>
@@ -67,7 +67,7 @@ export default {
     async searchSchedules() {
       this.searched = true;
       try {
-        const response = await request.get('/appointments/available-schedules', { // 移除重复的 /api
+        const response = await request.get('/user/available-schedules', {
           params: this.filters
         });
         if (response.code === 200) {
