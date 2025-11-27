@@ -11,7 +11,12 @@ const request = axios.create({
 request.interceptors.request.use(
     config => {
         // 自动添加token
+<<<<<<< HEAD
         const token = localStorage.getItem('token')
+=======
+        config.headers = config.headers || {}
+        const token = sessionStorage.getItem('token') || localStorage.getItem('token')
+>>>>>>> 16bd7400f4a7b2f8ed2b379b3664930ebe28314d
         if (token) {
             config.headers.Authorization = `Bearer ${token}`
         }
@@ -40,7 +45,23 @@ request.interceptors.response.use(
         return res
     },
     error => {
+<<<<<<< HEAD
         ElMessage.error('网络错误，请检查网络连接')
+=======
+        const res = error.response
+        if (res) {
+            const msg = (res.data && res.data.message) ? res.data.message : `请求失败(${res.status})`
+            ElMessage.error(msg)
+            if (res.status === 401) {
+                localStorage.removeItem('token')
+                localStorage.removeItem('user')
+                sessionStorage.removeItem('token')
+                sessionStorage.removeItem('user')
+            }
+        } else {
+            ElMessage.error('网络错误，请检查网络连接')
+        }
+>>>>>>> 16bd7400f4a7b2f8ed2b379b3664930ebe28314d
         return Promise.reject(error)
     }
 )

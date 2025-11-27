@@ -4,11 +4,19 @@
     <div class="filters">
       <label>
         科室ID:
+<<<<<<< HEAD
         <input type="number" v-model.number="filters.deptId" min="0" />
       </label>
       <label>
         医生ID:
         <input type="number" v-model.number="filters.doctorId" min="0" />
+=======
+        <input type="number" v-model="filters.deptId" />
+      </label>
+      <label>
+        医生ID:
+        <input type="number" v-model="filters.doctorId" />
+>>>>>>> 16bd7400f4a7b2f8ed2b379b3664930ebe28314d
       </label>
       <label>
         开始日期:
@@ -33,7 +41,11 @@
       <h3>查询结果</h3>
       <ul>
         <li v-for="schedule in schedules" :key="schedule.scheduleId" @click="selectSchedule(schedule)" :class="{ selected: selectedSchedule && selectedSchedule.scheduleId === schedule.scheduleId }">
+<<<<<<< HEAD
           {{ schedule.scheduleDate }} - {{ schedule.timeSlot }} ({{ schedule.doctorName }} - {{ schedule.deptName }})
+=======
+          {{ schedule.scheduleDate }} - {{ schedule.timeSlot }} ({{ schedule.doctorName }} - {{ schedule.departmentName }})
+>>>>>>> 16bd7400f4a7b2f8ed2b379b3664930ebe28314d
           <br>
           剩余号源: {{ schedule.availableCount }} / {{ schedule.maxCount }}
           <span v-if="schedule.availableCount === 0" class="no-slots"> (已无号源)</span>
@@ -45,8 +57,12 @@
 </template>
 
 <script>
+<<<<<<< HEAD
 import request from '../api/request';
 import { ElMessage } from 'element-plus'; // 导入 Element Plus 的消息组件
+=======
+import request from '../api/request'; // 假设你有一个封装的request工具
+>>>>>>> 16bd7400f4a7b2f8ed2b379b3664930ebe28314d
 
 export default {
   name: 'ScheduleSearch',
@@ -67,6 +83,7 @@ export default {
   methods: {
     async searchSchedules() {
       this.searched = true;
+<<<<<<< HEAD
       this.selectedSchedule = null; 
 
       // 校验 deptId 和 doctorId
@@ -101,6 +118,14 @@ export default {
           if (this.schedules.length === 0) {
             // ElMessage.info('没有找到符合条件的排班。'); // 美化前的代码没有这一行
           }
+=======
+      try {
+        const response = await request.get('/user/available-schedules', {
+          params: this.filters
+        });
+        if (response.code === 200) {
+          this.schedules = response.data.schedules; // 提取实际的排班数组
+>>>>>>> 16bd7400f4a7b2f8ed2b379b3664930ebe28314d
         } else {
           alert(response.message);
           this.schedules = [];
@@ -118,11 +143,18 @@ export default {
       }
       this.selectedSchedule = schedule;
       this.$emit('schedule-selected', schedule);
+<<<<<<< HEAD
       // ElMessage.success(`已选择 ${schedule.doctorName} 的 ${schedule.scheduleDate} ${schedule.timeSlot} 班次。`); // 美化前的代码没有这一行
     }
   },
   created() {
     this.searchSchedules(); 
+=======
+    }
+  },
+  created() {
+    this.searchSchedules(); // 页面加载时自动查询一次
+>>>>>>> 16bd7400f4a7b2f8ed2b379b3664930ebe28314d
   }
 };
 </script>
@@ -139,6 +171,7 @@ export default {
   margin-right: 15px;
 }
 
+<<<<<<< HEAD
 .filters input[type="number"]::-webkit-outer-spin-button,
 .filters input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -149,6 +182,8 @@ export default {
   -moz-appearance: textfield;
 }
 
+=======
+>>>>>>> 16bd7400f4a7b2f8ed2b379b3664930ebe28314d
 .filters input, .filters select, .filters button {
   padding: 8px;
   margin-top: 5px;

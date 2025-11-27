@@ -4,6 +4,12 @@ import LoginView from '../views/LoginView.vue'  // 修改导入路径
 import RegisterView from '../views/RegisterView.vue'  // 修改导入路径
 import AppointmentView from '../views/AppointmentView.vue' // 导入预约视图
 const AppointmentRecordsView = () => import('../views/AppointmentRecordsView.vue')
+<<<<<<< HEAD
+=======
+import DoctorDashboardView from '../views/DoctorDashboardView.vue'
+const DoctorWorkView = () => import('../views/DoctorWorkView.vue')
+import AdminDashboardView from '../views/AdminDashboardView.vue' // 导入管理员视图
+>>>>>>> 16bd7400f4a7b2f8ed2b379b3664930ebe28314d
 
 const routes = [
     {
@@ -13,6 +19,37 @@ const routes = [
         meta: { requiresAuth: true }
     },
     {
+<<<<<<< HEAD
+=======
+        path: '/doctor',
+        name: 'DoctorDashboard',
+        component: DoctorDashboardView,
+        meta: { requiresAuth: true, roles: ['doctor'] }
+    },
+    {
+        path: '/doctor/work',
+        name: 'DoctorWork',
+        component: DoctorWorkView,
+        meta: { requiresAuth: true, roles: ['doctor'] }
+    },
+    {
+        path: '/admin',
+        name: 'AdminDashboard',
+        component: AdminDashboardView,
+        meta: { requiresAuth: true, roles: ['admin'] }, // 假设只有管理员可以访问
+        children: [
+            { path: 'dashboard', name: 'AdminDashboardHome', component: AdminDashboardView, meta: { requiresAuth: true, roles: ['admin'] } },
+            { path: 'users', name: 'AdminUsers', component: AdminDashboardView, meta: { requiresAuth: true, roles: ['admin'] } },
+            { path: 'roles', name: 'AdminRoles', component: AdminDashboardView, meta: { requiresAuth: true, roles: ['admin'] } },
+            { path: 'doctors', name: 'AdminDoctors', component: AdminDashboardView, meta: { requiresAuth: true, roles: ['admin'] } },
+            { path: 'departments', name: 'AdminDepartments', component: AdminDashboardView, meta: { requiresAuth: true, roles: ['admin'] } },
+            { path: 'schedules', name: 'AdminSchedules', component: AdminDashboardView, meta: { requiresAuth: true, roles: ['admin'] } },
+            { path: 'appointments', name: 'AdminAppointments', component: AdminDashboardView, meta: { requiresAuth: true, roles: ['admin'] } },
+            { path: 'logs', name: 'AdminLogs', component: AdminDashboardView, meta: { requiresAuth: true, roles: ['admin'] } },
+        ]
+    },
+    {
+>>>>>>> 16bd7400f4a7b2f8ed2b379b3664930ebe28314d
         path: '/login',
         name: 'Login',
         component: LoginView,  // 更新组件引用
@@ -44,15 +81,36 @@ const router = createRouter({
 
 // 路由守卫
 router.beforeEach((to, from, next) => {
+<<<<<<< HEAD
     const isAuthenticated = !!localStorage.getItem('token')
+=======
+    const isAuthenticated = !!(sessionStorage.getItem('token') || localStorage.getItem('token'))
+    let role = null
+    try {
+        const u = sessionStorage.getItem('user') || localStorage.getItem('user')
+        if (u) role = JSON.parse(u).role
+    } catch (e) {
+        role = null
+    }
+>>>>>>> 16bd7400f4a7b2f8ed2b379b3664930ebe28314d
 
     if (to.meta.requiresAuth && !isAuthenticated) {
         next('/login')
     } else if ((to.path === '/login' || to.path === '/register') && isAuthenticated) {
+<<<<<<< HEAD
+=======
+        if (role === 'doctor') next('/doctor')
+        else next('/')
+    } else if (to.meta.roles && (!role || !to.meta.roles.includes(role))) {
+>>>>>>> 16bd7400f4a7b2f8ed2b379b3664930ebe28314d
         next('/')
     } else {
         next()
     }
 })
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 16bd7400f4a7b2f8ed2b379b3664930ebe28314d
 export default router
