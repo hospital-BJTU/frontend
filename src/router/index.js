@@ -4,12 +4,17 @@ import LoginView from '../views/LoginView.vue'  // 修改导入路径
 import RegisterView from '../views/RegisterView.vue'  // 修改导入路径
 import AppointmentView from '../views/AppointmentView.vue' // 导入预约视图
 const AppointmentRecordsView = () => import('../views/AppointmentRecordsView.vue')
+<<<<<<< Updated upstream
 <<<<<<< HEAD
 =======
 import DoctorDashboardView from '../views/DoctorDashboardView.vue'
 const DoctorWorkView = () => import('../views/DoctorWorkView.vue')
 import AdminDashboardView from '../views/AdminDashboardView.vue' // 导入管理员视图
 >>>>>>> 16bd7400f4a7b2f8ed2b379b3664930ebe28314d
+=======
+import DoctorDashboardView from '../views/DoctorDashboardView.vue'
+import AdminDashboardView from '../views/AdminDashboardView.vue' // 导入管理员视图
+>>>>>>> Stashed changes
 
 const routes = [
     {
@@ -19,6 +24,7 @@ const routes = [
         meta: { requiresAuth: true }
     },
     {
+<<<<<<< Updated upstream
 <<<<<<< HEAD
 =======
         path: '/doctor',
@@ -31,6 +37,12 @@ const routes = [
         name: 'DoctorWork',
         component: DoctorWorkView,
         meta: { requiresAuth: true, roles: ['doctor'] }
+=======
+        path: '/doctor',
+        name: 'DoctorDashboard',
+        component: DoctorDashboardView,
+        meta: { requiresAuth: true }
+>>>>>>> Stashed changes
     },
     {
         path: '/admin',
@@ -49,7 +61,10 @@ const routes = [
         ]
     },
     {
+<<<<<<< Updated upstream
 >>>>>>> 16bd7400f4a7b2f8ed2b379b3664930ebe28314d
+=======
+>>>>>>> Stashed changes
         path: '/login',
         name: 'Login',
         component: LoginView,  // 更新组件引用
@@ -83,34 +98,53 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
 <<<<<<< HEAD
     const isAuthenticated = !!localStorage.getItem('token')
+<<<<<<< Updated upstream
 =======
     const isAuthenticated = !!(sessionStorage.getItem('token') || localStorage.getItem('token'))
     let role = null
     try {
         const u = sessionStorage.getItem('user') || localStorage.getItem('user')
+=======
+    let role = null
+    try {
+        const u = localStorage.getItem('user')
+>>>>>>> Stashed changes
         if (u) role = JSON.parse(u).role
     } catch (e) {
         role = null
     }
+<<<<<<< Updated upstream
 >>>>>>> 16bd7400f4a7b2f8ed2b379b3664930ebe28314d
+=======
+>>>>>>> Stashed changes
 
     if (to.meta.requiresAuth && !isAuthenticated) {
         next('/login')
     } else if ((to.path === '/login' || to.path === '/register') && isAuthenticated) {
+<<<<<<< Updated upstream
 <<<<<<< HEAD
 =======
         if (role === 'doctor') next('/doctor')
         else next('/')
     } else if (to.meta.roles && (!role || !to.meta.roles.includes(role))) {
 >>>>>>> 16bd7400f4a7b2f8ed2b379b3664930ebe28314d
+=======
+        if (role === 'doctor') next('/doctor')
+        else next('/')
+    } else if (to.path === '/doctor' && role !== 'doctor') {
+>>>>>>> Stashed changes
         next('/')
     } else {
         next()
     }
 })
 
+<<<<<<< Updated upstream
 <<<<<<< HEAD
 =======
 
 >>>>>>> 16bd7400f4a7b2f8ed2b379b3664930ebe28314d
+=======
+
+>>>>>>> Stashed changes
 export default router

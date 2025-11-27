@@ -4,12 +4,17 @@ import request from './request'
 export function generateCaptcha() {
   return request({
     url: '/captcha/generate',
+<<<<<<< Updated upstream
 <<<<<<< HEAD
     method: 'get'
 =======
     method: 'get',
     params: { _t: Date.now() }
 >>>>>>> 16bd7400f4a7b2f8ed2b379b3664930ebe28314d
+=======
+    method: 'get',
+    params: { _t: Date.now() }
+>>>>>>> Stashed changes
   })
 }
 

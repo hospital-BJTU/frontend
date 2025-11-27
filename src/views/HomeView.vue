@@ -7,11 +7,15 @@
           <span class="app-title">智慧医疗服务平台</span>
         </div>
         <div class="header-right">
+<<<<<<< Updated upstream
 <<<<<<< HEAD
           <!-- 可以放置其他导航项或用户中心入口 -->
 =======
           <el-button type="danger" @click="handleLogout">退出登录</el-button>
 >>>>>>> 16bd7400f4a7b2f8ed2b379b3664930ebe28314d
+=======
+          <el-button type="danger" @click="handleLogout">退出登录</el-button>
+>>>>>>> Stashed changes
         </div>
       </el-header>
       <el-main class="main-content">
@@ -61,11 +65,15 @@
 </template>
 
 <script setup>
+<<<<<<< Updated upstream
 <<<<<<< HEAD
 import { ElMessage } from 'element-plus'
 =======
 import { ElMessage, ElMessageBox } from 'element-plus'
 >>>>>>> 16bd7400f4a7b2f8ed2b379b3664930ebe28314d
+=======
+import { ElMessage, ElMessageBox } from 'element-plus'
+>>>>>>> Stashed changes
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -84,23 +92,32 @@ const goToAppointmentRecords = () => {
   ElMessage.info('跳转到查询预约记录页面')
   router.push('/appointment-records')
 }
+<<<<<<< Updated upstream
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> Stashed changes
 
 const handleLogout = async () => {
   try {
     await ElMessageBox.confirm('确认退出登录？', '提示', { type: 'warning' })
     localStorage.removeItem('token')
     localStorage.removeItem('user')
+<<<<<<< Updated upstream
     sessionStorage.removeItem('token')
     sessionStorage.removeItem('user')
+=======
+>>>>>>> Stashed changes
     ElMessage.success('已退出登录')
     router.push('/login')
   } catch (e) {
     ElMessage.info('已取消退出')
   }
 }
+<<<<<<< Updated upstream
 >>>>>>> 16bd7400f4a7b2f8ed2b379b3664930ebe28314d
+=======
+>>>>>>> Stashed changes
 </script>
 
 <style scoped>

@@ -35,6 +35,7 @@ export const cancelAppointment = (apptId) => {
     method: 'PUT'
   })
 }
+<<<<<<< Updated upstream
 =======
     url: `/user/appointments/${apptId}/cancel`,
     method: 'PUT'
@@ -44,26 +45,41 @@ export const cancelAppointment = (apptId) => {
 export const doctorCallAppointment = (apptId) => {
   return request({
     url: `/doctor/appointments/${apptId}/call`,
+=======
+
+export const doctorCallAppointment = (apptId) => {
+  return request({
+    url: `/appointments/${apptId}/call`,
+>>>>>>> Stashed changes
     method: 'PUT'
   })
 }
 
 export const doctorMissAppointment = (apptId) => {
   return request({
+<<<<<<< Updated upstream
     url: `/doctor/appointments/${apptId}/miss`,
+=======
+    url: `/appointments/${apptId}/miss`,
+>>>>>>> Stashed changes
     method: 'PUT'
   })
 }
 
 export const doctorCompleteAppointment = (apptId) => {
   return request({
+<<<<<<< Updated upstream
     url: `/doctor/appointments/${apptId}/complete`,
+=======
+    url: `/appointments/${apptId}/complete`,
+>>>>>>> Stashed changes
     method: 'PUT'
   })
 }
 
 export const getDoctorQueue = (params = {}) => {
   return request({
+<<<<<<< Updated upstream
     url: '/doctor/queue',
     method: 'GET',
     params
@@ -94,3 +110,10 @@ export const requestScheduleLeave = (scheduleId, data = {}) => {
   })
 }
 >>>>>>> 16bd7400f4a7b2f8ed2b379b3664930ebe28314d
+=======
+    url: '/appointments/doctor/queue',
+    method: 'GET',
+    params
+  })
+}
+>>>>>>> Stashed changes

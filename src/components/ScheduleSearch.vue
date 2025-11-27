@@ -4,6 +4,7 @@
     <div class="filters">
       <label>
         科室ID:
+<<<<<<< Updated upstream
 <<<<<<< HEAD
         <input type="number" v-model.number="filters.deptId" min="0" />
       </label>
@@ -17,6 +18,13 @@
         医生ID:
         <input type="number" v-model="filters.doctorId" />
 >>>>>>> 16bd7400f4a7b2f8ed2b379b3664930ebe28314d
+=======
+        <input type="number" v-model="filters.deptId" />
+      </label>
+      <label>
+        医生ID:
+        <input type="number" v-model="filters.doctorId" />
+>>>>>>> Stashed changes
       </label>
       <label>
         开始日期:
@@ -57,12 +65,16 @@
 </template>
 
 <script>
+<<<<<<< Updated upstream
 <<<<<<< HEAD
 import request from '../api/request';
 import { ElMessage } from 'element-plus'; // 导入 Element Plus 的消息组件
 =======
 import request from '../api/request'; // 假设你有一个封装的request工具
 >>>>>>> 16bd7400f4a7b2f8ed2b379b3664930ebe28314d
+=======
+import request from '../api/request'; // 假设你有一个封装的request工具
+>>>>>>> Stashed changes
 
 export default {
   name: 'ScheduleSearch',
@@ -83,6 +95,7 @@ export default {
   methods: {
     async searchSchedules() {
       this.searched = true;
+<<<<<<< Updated upstream
 <<<<<<< HEAD
       this.selectedSchedule = null; 
 
@@ -98,22 +111,14 @@ export default {
         return;
       }
 
+=======
+>>>>>>> Stashed changes
       try {
-        // 复制一份filters，避免直接修改原始数据
-        const requestParams = { ...this.filters };
-        
-        // 如果 deptId 不为 null 或 undefined，则需要特殊处理
-        // 由于后端 Schedule 表没有 deptId 字段，这里不再将 deptId 直接作为参数传递给 Schedule 查询
-        if (requestParams.deptId !== null && requestParams.deptId !== undefined) {
-          // 您可能需要在此处实现一个单独的科室筛选逻辑，或者依靠后端通过 Doctor 模型关联。
-          // 由于要求不修改后端，我们暂时移除此直接筛选，以避免错误。
-          delete requestParams.deptId; 
-        }
-
-        const response = await request.get('/appointments/available-schedules', {
-          params: requestParams // 使用修改后的参数
+        const response = await request.get('/appointments/available-schedules', { // 移除重复的 /api
+          params: this.filters
         });
         if (response.code === 200) {
+<<<<<<< Updated upstream
           this.schedules = response.data.schedules; 
           if (this.schedules.length === 0) {
             // ElMessage.info('没有找到符合条件的排班。'); // 美化前的代码没有这一行
@@ -126,6 +131,9 @@ export default {
         if (response.code === 200) {
           this.schedules = response.data.schedules; // 提取实际的排班数组
 >>>>>>> 16bd7400f4a7b2f8ed2b379b3664930ebe28314d
+=======
+          this.schedules = response.data.schedules; // 提取实际的排班数组
+>>>>>>> Stashed changes
         } else {
           alert(response.message);
           this.schedules = [];
@@ -143,6 +151,7 @@ export default {
       }
       this.selectedSchedule = schedule;
       this.$emit('schedule-selected', schedule);
+<<<<<<< Updated upstream
 <<<<<<< HEAD
       // ElMessage.success(`已选择 ${schedule.doctorName} 的 ${schedule.scheduleDate} ${schedule.timeSlot} 班次。`); // 美化前的代码没有这一行
     }
@@ -155,6 +164,12 @@ export default {
   created() {
     this.searchSchedules(); // 页面加载时自动查询一次
 >>>>>>> 16bd7400f4a7b2f8ed2b379b3664930ebe28314d
+=======
+    }
+  },
+  created() {
+    this.searchSchedules(); // 页面加载时自动查询一次
+>>>>>>> Stashed changes
   }
 };
 </script>
@@ -171,6 +186,7 @@ export default {
   margin-right: 15px;
 }
 
+<<<<<<< Updated upstream
 <<<<<<< HEAD
 .filters input[type="number"]::-webkit-outer-spin-button,
 .filters input[type="number"]::-webkit-inner-spin-button {
@@ -184,6 +200,8 @@ export default {
 
 =======
 >>>>>>> 16bd7400f4a7b2f8ed2b379b3664930ebe28314d
+=======
+>>>>>>> Stashed changes
 .filters input, .filters select, .filters button {
   padding: 8px;
   margin-top: 5px;
