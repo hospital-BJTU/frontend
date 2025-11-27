@@ -33,6 +33,14 @@
           <el-icon><Calendar /></el-icon>
           <span>排班管理</span>
         </el-menu-item>
+        <el-menu-item index="/admin/pending-schedules">
+          <el-icon><Clock /></el-icon>
+          <span>待审核排班</span>
+        </el-menu-item>
+        <el-menu-item index="/admin/leave-requests">
+          <el-icon><DocumentDelete /></el-icon>
+          <span>请假请求</span>
+        </el-menu-item>
         <el-menu-item index="/admin/appointments">
           <el-icon><List /></el-icon>
           <span>预约管理</span>
@@ -72,7 +80,9 @@ import {
   OfficeBuilding, 
   Calendar, 
   List, 
-  Document 
+  Document,
+  Clock,
+  DocumentDelete
 } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
