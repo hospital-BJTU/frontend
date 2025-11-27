@@ -97,18 +97,8 @@ const refreshCaptcha = async () => {
       loginForm.value.captcha = '' // 清空验证码输入框
     }
   } catch (error) {
-<<<<<<< Updated upstream
-<<<<<<< HEAD
-    ElMessage.error('验证码生成失败')
-    console.error('生成验证码失败:', error)
-=======
     ElMessage.error('验证码生成失败，正在重试')
     setTimeout(() => { refreshCaptcha() }, 1000)
->>>>>>> 16bd7400f4a7b2f8ed2b379b3664930ebe28314d
-=======
-    ElMessage.error('验证码生成失败，正在重试')
-    setTimeout(() => { refreshCaptcha() }, 1000)
->>>>>>> Stashed changes
   }
 }
 
@@ -144,13 +134,6 @@ const handleLogin = async () => {
         }
 
         const response = await loginUser(loginForm.value)
-<<<<<<< HEAD
-        localStorage.setItem('token', response.data.token)
-        localStorage.setItem('user', JSON.stringify(response.data.user))
-        ElMessage.success('登录成功')
-<<<<<<< Updated upstream
-        router.push('/') // 跳转到Vue应用内部的根路径
-=======
         if (rememberMe.value) {
           localStorage.setItem('token', response.data.token)
           localStorage.setItem('user', JSON.stringify(response.data.user))
@@ -159,8 +142,6 @@ const handleLogin = async () => {
           sessionStorage.setItem('user', JSON.stringify(response.data.user))
         }
         ElMessage.success('登录成功')
-=======
->>>>>>> Stashed changes
         
         const userRole = response.data.user ? response.data.user.role : null;
 
@@ -171,10 +152,6 @@ const handleLogin = async () => {
         } else {
           router.push('/')
         }
-<<<<<<< Updated upstream
->>>>>>> 16bd7400f4a7b2f8ed2b379b3664930ebe28314d
-=======
->>>>>>> Stashed changes
       } catch (error) {
         ElMessage.error(error.message || '登录失败，请稍后再试')
         console.error(error)

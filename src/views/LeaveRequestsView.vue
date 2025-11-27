@@ -36,6 +36,8 @@ import { ref, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import request from '../api/request'; // 假设您有一个通用的请求模块
 
+console.log('LeaveRequestsView setup'); // 重新添加日志
+
 const leaveRequests = ref([]);
 const total = ref(0);
 const currentPage = ref(1);
@@ -52,8 +54,8 @@ const fetchLeaveRequests = async () => {
       },
     });
     if (response.code === 200) {
-      leaveRequests.value = response.data;
-      total.value = response.total; // 假设后端返回total字段
+      leaveRequests.value = response.data.list; // 修正：从 response.data.list 获取
+      total.value = response.data.total; // 修正：从 response.data.total 获取
     } else {
       ElMessage.error(response.message || '获取请假请求失败');
     }
@@ -65,6 +67,7 @@ const fetchLeaveRequests = async () => {
 };
 
 onMounted(() => {
+  console.log('LeaveRequestsView mounted'); // 重新添加日志
   fetchLeaveRequests();
 });
 

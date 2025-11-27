@@ -60,34 +60,37 @@
         </div>
       </el-header>
       <el-main class="admin-main-content">
-        <router-view>
-          <!-- 默认内容或子路由内容 -->
-          <div class="welcome-card">
-            <h2>欢迎来到管理员页面！</h2>
-            <p>请从左侧导航栏选择一个管理功能。</p>
-          </div>
-        </router-view>
+        <router-view></router-view>
+        <!-- <div>测试路由视图是否工作</div> -->
       </el-main>
     </el-container>
   </el-container>
 </template>
 
 <script setup>
-import { 
-  Menu, 
-  User, 
-  Cherry, 
-  OfficeBuilding, 
-  Calendar, 
-  List, 
+import {
+  Menu,
+  User,
+  Cherry,
+  OfficeBuilding,
+  Calendar,
+  List,
   Document,
   Clock,
   DocumentDelete
 } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
+import { onMounted } from 'vue'; // 导入 onMounted
+
+console.log('AdminDashboardView setup'); // 新增的调试日志
 
 const router = useRouter()
+
+// const handleSelect = (index) => {
+//   console.log('Selected menu item:', index);
+//   router.push(index);
+// };
 
 const handleLogout = async () => {
   try {
@@ -102,6 +105,10 @@ const handleLogout = async () => {
     ElMessage.info('已取消退出')
   }
 }
+
+onMounted(() => {
+  console.log('AdminDashboardView mounted');
+});
 </script>
 
 <style scoped>

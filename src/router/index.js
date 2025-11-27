@@ -7,8 +7,8 @@ const AppointmentRecordsView = () => import('../views/AppointmentRecordsView.vue
 import DoctorDashboardView from '../views/DoctorDashboardView.vue'
 const DoctorWorkView = () => import('../views/DoctorWorkView.vue')
 import AdminDashboardView from '../views/AdminDashboardView.vue' // 导入管理员视图
-const PendingSchedulesView = () => import('../views/PendingSchedulesView.vue')
-const LeaveRequestsView = () => import('../views/LeaveRequestsView.vue')
+const PendingSchedulesView = () => import('../views/PendingSchedulesView.vue') // 恢复动态导入
+const LeaveRequestsView = () => import('../views/LeaveRequestsView.vue') // 恢复动态导入
 
 const routes = [
     {
@@ -40,7 +40,7 @@ const routes = [
             { path: 'roles', name: 'AdminRoles', component: AdminDashboardView, meta: { requiresAuth: true, roles: ['admin'] } },
             { path: 'doctors', name: 'AdminDoctors', component: AdminDashboardView, meta: { requiresAuth: true, roles: ['admin'] } },
             { path: 'departments', name: 'AdminDepartments', component: AdminDashboardView, meta: { requiresAuth: true, roles: ['admin'] } },
-            { path: 'schedules', name: 'AdminSchedules', component: AdminDashboardView, meta: { requiresAuth: true, roles: ['admin'] } },
+            { path: 'schedules', name: 'AdminSchedules', component: PendingSchedulesView, meta: { requiresAuth: true, roles: ['admin'] } },
             { path: 'appointments', name: 'AdminAppointments', component: AdminDashboardView, meta: { requiresAuth: true, roles: ['admin'] } },
             { path: 'logs', name: 'AdminLogs', component: AdminDashboardView, meta: { requiresAuth: true, roles: ['admin'] } },
             { path: 'pending-schedules', name: 'AdminPendingSchedules', component: PendingSchedulesView, meta: { requiresAuth: true, roles: ['admin'] } },
@@ -79,6 +79,7 @@ const router = createRouter({
 
 // 路由守卫
 router.beforeEach((to, from, next) => {
+    console.log(`Navigating from ${from.path} to ${to.path}`);
     const isAuthenticated = !!(sessionStorage.getItem('token') || localStorage.getItem('token'))
     let role = null
     try {
