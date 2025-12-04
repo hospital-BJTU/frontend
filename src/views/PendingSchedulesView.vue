@@ -44,7 +44,7 @@
       @current-change="handlePageChange"
       :current-page="currentPage"
       :page-sizes="[10, 20, 50, 100]"
-      :page-size="pageSize"
+      :page-size="limit"
       layout="total, sizes, prev, pager, next, jumper"
       :total="total"
       background
@@ -62,7 +62,7 @@ console.log('PendingSchedulesView setup'); // 重新添加日志
 
 const pendingSchedules = ref([]);
 const currentPage = ref(1);
-const pageSize = ref(10);
+const limit = ref(10); // 将 pageSize 改为 limit
 const total = ref(0);
 
 const handlePageChange = (page) => { // 恢复函数
@@ -71,9 +71,9 @@ const handlePageChange = (page) => { // 恢复函数
   fetchPendingSchedules();
 };
 
-const handleSizeChange = (size) => { // 恢复函数
-  console.log(`${size} items per page`);
-  pageSize.value = size;
+const handleSizeChange = (newLimit) => { // 将 size 改为 newLimit
+  console.log(`${newLimit} items per page`);
+  limit.value = newLimit; // 将 pageSize.value 改为 limit.value
   currentPage.value = 1; // 更改每页显示数量时，重置到第一页
   fetchPendingSchedules();
 };
@@ -102,7 +102,7 @@ const handleAuditSchedule = async (scheduleId, auditResult) => { // 恢复函数
     }
     try {
       const response = await request.put(`/admin/schedules/${scheduleId}/audit`, {
-        auditResult,
+        newStatus: auditResult, // 将 auditResult 更改为 newStatus
         reason,
       });
       if (response.code === 200) {
@@ -152,7 +152,7 @@ const fetchPendingSchedules = async () => {
     const response = await request.get('/admin/schedules/pending', {
       params: {
         page: currentPage.value,
-        pageSize: pageSize.value,
+        limit: limit.value, // 将 pageSize.value 改为 limit.value
       },
     });
     console.log("Backend response for pending schedules:", response);

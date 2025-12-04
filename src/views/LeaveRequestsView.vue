@@ -22,7 +22,7 @@
       @size-change="handleSizeChange"
       :current-page="currentPage"
       :page-sizes="[10, 20, 50, 100]"
-      :page-size="pageSize"
+      :page-size="limit"
       layout="total, sizes, prev, pager, next, jumper"
       :total="total"
       style="margin-top: 20px; text-align: right;"
@@ -41,7 +41,7 @@ console.log('LeaveRequestsView setup'); // 重新添加日志
 const leaveRequests = ref([]);
 const total = ref(0);
 const currentPage = ref(1);
-const pageSize = ref(10);
+const limit = ref(10); // 将 pageSize 改为 limit
 const loading = ref(false);
 
 const fetchLeaveRequests = async () => {
@@ -50,7 +50,7 @@ const fetchLeaveRequests = async () => {
     const response = await request.get('/admin/schedules/leave-requests', {
       params: {
         page: currentPage.value,
-        limit: pageSize.value,
+        limit: limit.value, // 将 pageSize.value 改为 limit.value
       },
     });
     if (response.code === 200) {
@@ -76,8 +76,8 @@ const handlePageChange = (newPage) => {
   fetchLeaveRequests();
 };
 
-const handleSizeChange = (newSize) => {
-  pageSize.value = newSize;
+const handleSizeChange = (newLimit) => { // 将 newSize 改为 newLimit
+  limit.value = newLimit; // 将 pageSize.value 改为 limit.value
   currentPage.value = 1; // 改变每页大小时重置到第一页
   fetchLeaveRequests();
 };

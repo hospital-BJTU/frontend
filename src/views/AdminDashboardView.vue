@@ -7,7 +7,7 @@
         background-color="#545c64"
         text-color="#fff"
         active-text-color="#ffd04b"
-        router
+        @select="handleSelect"
       >
         <el-menu-item index="/admin/dashboard">
           <el-icon><Menu /></el-icon>
@@ -87,10 +87,10 @@ console.log('AdminDashboardView setup'); // 新增的调试日志
 
 const router = useRouter()
 
-// const handleSelect = (index) => {
-//   console.log('Selected menu item:', index);
-//   router.push(index);
-// };
+const handleSelect = (index) => {
+  console.log('Selected menu item:', index);
+  router.push(index);
+};
 
 const handleLogout = async () => {
   try {
