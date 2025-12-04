@@ -188,12 +188,10 @@ const fetchUsers = async () => {
             username: queryForm.username,
             role: queryForm.role,
         };
-        const response = await request.get('/admin/users', { params }); // 修改请求路径，移除多余的 /api
+        const response = await request.get('/admin/users', { params });
         if (response.code === 200) {
-            users.value = response.data;
-            // 由于接口文档没有明确分页的total字段，这里假设返回的是所有用户，前端手动分页或后端提供total
-            totalUsers.value = response.data.length; // 根据实际返回的数组长度设置 totalUsers
-            // totalUsers.value = response.data.total; // 假设后端返回 total 字段
+            users.value = response.data.list;
+            totalUsers.value = response.data.total;
         }
     } catch (error) {
         console.error('获取用户列表失败:', error);

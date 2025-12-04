@@ -193,12 +193,10 @@ const fetchDoctors = async () => {
             title: queryForm.title || undefined,
             verifyStatus: queryForm.verifyStatus || undefined,
         };
-        const response = await request.get('/admin/doctors', { params }); // 修改请求路径，移除多余的 /api
+        const response = await request.get('/admin/doctors', { params });
         if (response.code === 200) {
-            // 假设后端返回的数据结构与科室管理类似，包含 list 和 total
-            // 如果后端只返回数组，需要手动分页处理
-            doctors.value = response.data.list || response.data; 
-            totalDoctors.value = response.data.total || doctors.value.length; // 如果没有total字段，则使用当前数据长度
+            doctors.value = response.data.list;
+            totalDoctors.value = response.data.total;
         }
     } catch (error) {
         console.error('获取医生列表失败:', error);
