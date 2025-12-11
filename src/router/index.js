@@ -7,6 +7,11 @@ const AppointmentRecordsView = () => import('../views/AppointmentRecordsView.vue
 import DoctorDashboardView from '../views/DoctorDashboardView.vue'
 const DoctorWorkView = () => import('../views/DoctorWorkView.vue')
 import AdminDashboardView from '../views/AdminDashboardView.vue' // 导入管理员视图
+const PendingSchedulesView = () => import('../views/PendingSchedulesView.vue') // 恢复动态导入
+const LeaveRequestsView = () => import('../views/LeaveRequestsView.vue') // 恢复动态导入
+const DepartmentManagementView = () => import('../views/DepartmentManagementView.vue') // 动态导入科室管理视图
+const UserManagementView = () => import('../views/UserManagementView.vue') // 动态导入用户管理视图
+const DoctorManagementView = () => import('../views/DoctorManagementView.vue') // 动态导入医生管理视图
 
 const routes = [
     {
@@ -34,13 +39,14 @@ const routes = [
         meta: { requiresAuth: true, roles: ['admin'] }, // 假设只有管理员可以访问
         children: [
             { path: 'dashboard', name: 'AdminDashboardHome', component: AdminDashboardView, meta: { requiresAuth: true, roles: ['admin'] } },
-            { path: 'users', name: 'AdminUsers', component: AdminDashboardView, meta: { requiresAuth: true, roles: ['admin'] } },
+            { path: 'users', name: 'AdminUsers', component: UserManagementView, meta: { requiresAuth: true, roles: ['admin'] } }, // 指向用户管理组件
             { path: 'roles', name: 'AdminRoles', component: AdminDashboardView, meta: { requiresAuth: true, roles: ['admin'] } },
-            { path: 'doctors', name: 'AdminDoctors', component: AdminDashboardView, meta: { requiresAuth: true, roles: ['admin'] } },
-            { path: 'departments', name: 'AdminDepartments', component: AdminDashboardView, meta: { requiresAuth: true, roles: ['admin'] } },
-            { path: 'schedules', name: 'AdminSchedules', component: AdminDashboardView, meta: { requiresAuth: true, roles: ['admin'] } },
+            { path: 'doctors', name: 'AdminDoctors', component: DoctorManagementView, meta: { requiresAuth: true, roles: ['admin'] } }, // 指向医生管理组件
+            { path: 'departments', name: 'AdminDepartments', component: DepartmentManagementView, meta: { requiresAuth: true, roles: ['admin'] } }, // 指向科室管理组件
             { path: 'appointments', name: 'AdminAppointments', component: AdminDashboardView, meta: { requiresAuth: true, roles: ['admin'] } },
             { path: 'logs', name: 'AdminLogs', component: AdminDashboardView, meta: { requiresAuth: true, roles: ['admin'] } },
+            { path: 'pending-schedules', name: 'AdminPendingSchedules', component: PendingSchedulesView, meta: { requiresAuth: true, roles: ['admin'] } },
+            { path: 'leave-requests', name: 'AdminLeaveRequests', component: LeaveRequestsView, meta: { requiresAuth: true, roles: ['admin'] } },
         ]
     },
     {
@@ -75,6 +81,7 @@ const router = createRouter({
 
 // 路由守卫
 router.beforeEach((to, from, next) => {
+    console.log(`Navigating from ${from.path} to ${to.path}`);
     const isAuthenticated = !!(sessionStorage.getItem('token') || localStorage.getItem('token'))
     let role = null
     try {
@@ -95,6 +102,5 @@ router.beforeEach((to, from, next) => {
         next()
     }
 })
-
 
 export default router

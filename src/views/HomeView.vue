@@ -7,7 +7,13 @@
           <span class="app-title">智慧医疗服务平台</span>
         </div>
         <div class="header-right">
+
+          <!-- 可以放置其他导航项或用户中心入口 -->
+
           <el-button type="danger" @click="handleLogout">退出登录</el-button>
+
+          
+
         </div>
       </el-header>
       <el-main class="main-content">
@@ -57,7 +63,12 @@
 </template>
 
 <script setup>
+// console.log('HomeView setup'); // 新增的调试日志
+
 import { ElMessage, ElMessageBox } from 'element-plus'
+// import { onMounted } from 'vue'; // 导入 onMounted - 已移除
+
+
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -77,19 +88,26 @@ const goToAppointmentRecords = () => {
   router.push('/appointment-records')
 }
 
+
 const handleLogout = async () => {
   try {
     await ElMessageBox.confirm('确认退出登录？', '提示', { type: 'warning' })
     localStorage.removeItem('token')
     localStorage.removeItem('user')
+
     sessionStorage.removeItem('token')
     sessionStorage.removeItem('user')
+
     ElMessage.success('已退出登录')
     router.push('/login')
   } catch (e) {
     ElMessage.info('已取消退出')
   }
 }
+
+// onMounted(() => {
+//   console.log('HomeView mounted');
+// });
 </script>
 
 <style scoped>
