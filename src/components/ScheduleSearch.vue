@@ -3,20 +3,26 @@
     <h2>查询可预约排班</h2>
     <div class="filters">
       <label>
-        科室ID:
-        <input type="number" v-model="filters.deptId" />
+        科室:
+        <el-select v-model="filters.deptId" placeholder="请选择科室" clearable @change="handleDeptChange">
+          <el-option
+            v-for="dept in departments"
+            :key="dept.deptId"
+            :label="dept.deptName"
+            :value="dept.deptId">
+          </el-option>
+        </el-select>
       </label>
       <label>
-        医生ID:
-        <input type="number" v-model="filters.doctorId" />
-      </label>
-      <label>
-        开始日期:
-        <input type="date" v-model="filters.startDate" />
-      </label>
-      <label>
-        结束日期:
-        <input type="date" v-model="filters.endDate" />
+        医生:
+        <el-select v-model="filters.doctorId" placeholder="请选择医生" clearable>
+          <el-option
+            v-for="doctor in doctors"
+            :key="doctor.doctorId"
+            :label="doctor.doctorName + ' (' + doctor.title + ')'"
+            :value="doctor.doctorId">
+          </el-option>
+        </el-select>
       </label>
       <label>
         时间段:
@@ -32,8 +38,7 @@
     <div v-if="schedules.length > 0" class="schedule-results">
       <h3>查询结果</h3>
       <ul>
-        <li v-for="schedule in schedules" :key="schedule.scheduleId" @click="selectSchedule(schedule)" :class="{ selected: selectedSchedule && selectedSchedule.scheduleId === schedule.scheduleId }">
-          {{ schedule.scheduleDate }} - {{ schedule.timeSlot }} ({{ schedule.doctorName }} - {{ schedule.departmentName }})
+        <li v-for="schedule in schedules" :key="schedule.scheduleId" @click="selectSchedule(schedule)" :class="{ selected: selectedSchedule && selectedSchedule.scheduleId === schedule.scheduleId }">         {{ schedule.scheduleDate }} - {{ schedule.timeSlot }} ({{ schedule.doctorName }} - {{ schedule.departmentName }})
           <br>
           剩余号源: {{ schedule.availableCount }} / {{ schedule.maxCount }}
           <span v-if="schedule.availableCount === 0" class="no-slots"> (已无号源)</span>
@@ -45,25 +50,67 @@
 </template>
 
 <script>
+
 import request from '../api/request'; // 假设你有一个封装的request工具
+import { ElMessage, ElSelect, ElOption } from 'element-plus';
+
 
 export default {
   name: 'ScheduleSearch',
+  components: {
+    ElSelect, // 注册 ElSelect 组件
+    ElOption  // 注册 ElOption 组件
+  },
   data() {
     return {
       filters: {
         deptId: null,
         doctorId: null,
-        startDate: '',
-        endDate: '',
         timeSlot: ''
       },
       schedules: [],
       selectedSchedule: null,
-      searched: false
+      searched: false,
+      departments: [], // 新增：科室列表
+      doctors: [] // 新增：医生列表
     };
   },
   methods: {
+    async fetchDepartments() {
+      try {
+        const response = await request.get('/user/appointments/departments');
+        if (response.code === 200) {
+          this.departments = response.data.departments;
+        } else {
+          ElMessage.error('获取科室列表失败: ' + response.message);
+        }
+      } catch (error) {
+        console.error('获取科室列表失败:', error);
+        ElMessage.error('获取科室列表失败，请稍后重试');
+      }
+    },
+    async fetchDoctorsByDept(deptId) {
+      this.doctors = []; // 清空医生列表
+      this.filters.doctorId = null; // 清空已选择的医生
+      if (!deptId) {
+        return;
+      }
+      try {
+        const response = await request.get(`/user/appointments/doctors?deptId=${deptId}`);
+        if (response.code === 200) {
+          this.doctors = response.data.doctors;
+        } else {
+          ElMessage.error('获取医生列表失败: ' + response.message);
+        }
+      } catch (error) {
+        console.error('获取医生列表失败:', error);
+        ElMessage.error('获取医生列表失败，请稍后重试');
+      }
+    },
+    handleDeptChange(deptId) {
+      this.fetchDoctorsByDept(deptId);
+      this.searchSchedules(); // 科室改变时重新搜索排班
+    },
     async searchSchedules() {
       this.searched = true;
       try {
@@ -72,27 +119,30 @@ export default {
         });
         if (response.code === 200) {
           this.schedules = response.data.schedules; // 提取实际的排班数组
+          // alert(response.message); // 移除不必要的alert
         } else {
-          alert(response.message);
+          // alert(response.message); // 移除不必要的alert
+          ElMessage.error('查询排班失败: ' + response.message);
           this.schedules = [];
         }
       } catch (error) {
         console.error('查询排班失败:', error);
-        alert('查询排班失败，请稍后重试');
+        ElMessage.error('查询排班失败，请稍后重试');
         this.schedules = [];
       }
     },
     selectSchedule(schedule) {
       if (schedule.availableCount === 0) {
-        alert('该排班已无号源，请选择其他排班。');
+        ElMessage.warning('该排班已无号源，请选择其他排班。'); // 使用ElMessage
         return;
       }
       this.selectedSchedule = schedule;
-      this.$emit('schedule-selected', schedule);
-    }
+      this.$emit('schedule-selected', schedule);}
   },
   created() {
+    this.fetchDepartments(); // 页面加载时获取科室列表
     this.searchSchedules(); // 页面加载时自动查询一次
+
   }
 };
 </script>
@@ -108,6 +158,20 @@ export default {
 .filters label {
   margin-right: 15px;
 }
+
+
+.filters input[type="number"]::-webkit-outer-spin-button,
+.filters input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.filters input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: none; /* Add this line */
+}
+
+
 
 .filters input, .filters select, .filters button {
   padding: 8px;

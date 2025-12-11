@@ -43,7 +43,6 @@ const routes = [
             { path: 'roles', name: 'AdminRoles', component: AdminDashboardView, meta: { requiresAuth: true, roles: ['admin'] } },
             { path: 'doctors', name: 'AdminDoctors', component: DoctorManagementView, meta: { requiresAuth: true, roles: ['admin'] } }, // 指向医生管理组件
             { path: 'departments', name: 'AdminDepartments', component: DepartmentManagementView, meta: { requiresAuth: true, roles: ['admin'] } }, // 指向科室管理组件
-            { path: 'schedules', name: 'AdminSchedules', component: PendingSchedulesView, meta: { requiresAuth: true, roles: ['admin'] } },
             { path: 'appointments', name: 'AdminAppointments', component: AdminDashboardView, meta: { requiresAuth: true, roles: ['admin'] } },
             { path: 'logs', name: 'AdminLogs', component: AdminDashboardView, meta: { requiresAuth: true, roles: ['admin'] } },
             { path: 'pending-schedules', name: 'AdminPendingSchedules', component: PendingSchedulesView, meta: { requiresAuth: true, roles: ['admin'] } },

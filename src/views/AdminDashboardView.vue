@@ -19,7 +19,6 @@
             <span>用户管理</span>
           </template>
           <el-menu-item index="/admin/users">所有用户</el-menu-item>
-          <el-menu-item index="/admin/roles">角色管理</el-menu-item>
         </el-sub-menu>
         <el-menu-item index="/admin/doctors">
           <el-icon><Cherry /></el-icon>
@@ -29,10 +28,6 @@
           <el-icon><OfficeBuilding /></el-icon>
           <span>科室管理</span>
         </el-menu-item>
-        <el-menu-item index="/admin/schedules">
-          <el-icon><Calendar /></el-icon>
-          <span>排班管理</span>
-        </el-menu-item>
         <el-menu-item index="/admin/pending-schedules">
           <el-icon><Clock /></el-icon>
           <span>待审核排班</span>
@@ -40,10 +35,6 @@
         <el-menu-item index="/admin/leave-requests">
           <el-icon><DocumentDelete /></el-icon>
           <span>请假请求</span>
-        </el-menu-item>
-        <el-menu-item index="/admin/appointments">
-          <el-icon><List /></el-icon>
-          <span>预约管理</span>
         </el-menu-item>
         <el-menu-item index="/admin/logs">
           <el-icon><Document /></el-icon>
@@ -73,8 +64,6 @@ import {
   User,
   Cherry,
   OfficeBuilding,
-  Calendar,
-  List,
   Document,
   Clock,
   DocumentDelete

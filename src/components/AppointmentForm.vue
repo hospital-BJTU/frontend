@@ -3,7 +3,7 @@
     <h2>提交预约</h2>
     <div v-if="selectedSchedule">
       <p>您已选择：</p>
-      <p>医生: {{ selectedSchedule.doctorName }} ({{ selectedSchedule.deptName }})</p>
+      <p>医生: {{ selectedSchedule.doctorName }} ({{ selectedSchedule.departmentName }})</p>
       <p>日期: {{ selectedSchedule.scheduleDate }} {{ selectedSchedule.timeSlot }}</p>
       <p>剩余号源: {{ selectedSchedule.availableCount }}</p>
       <label>
@@ -19,6 +19,8 @@
 
 <script>
 import request from '../api/request';
+import { ElMessage } from 'element-plus'; // 导入ElMessage用于提示
+import { useRouter } from 'vue-router'; // 导入useRouter
 
 export default {
   name: 'AppointmentForm',
@@ -31,21 +33,25 @@ export default {
   data() {
     return {
       specificTimeSlot: '',
-      submitting: false
+      submitting: false,
     };
+  },
+  setup() {
+    const router = useRouter();
+    return { router };
   },
   methods: {
     async submitAppointment() {
       if (!this.selectedSchedule) {
-        alert('请先选择一个排班。');
+        ElMessage.warning('请先选择一个排班。');
         return;
       }
 
       this.submitting = true;
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token') || localStorage.getItem('token'); // 同时检查sessionStorage和localStorage
       if (!token) {
-        alert('请先登录。');
-        this.$router.push('/login');
+        ElMessage.warning('请先登录。');
+        this.router.push('/login'); // 使用this.router
         this.submitting = false;
         return;
       }
@@ -59,23 +65,29 @@ export default {
       }
 
       try {
-        const response = await request.post('/appointments', payload, {
+        const response = await request.post('/user/appointments', payload, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         });
 
-        if (response.code === 200 || response.code === 201) { // 同时接受 200 和 201
-          alert('预约成功！');
+        if (response.code === 200 || response.code === 201) {
+          ElMessage.success('预约成功！');
           this.specificTimeSlot = '';
           this.$emit('appointment-success');
         } else {
-          alert(`预约失败: ${response.message}`);
+          ElMessage.error(`预约失败: ${response.message}`);
+          // 如果后端返回了错误信息，通常会在response.data.message中
+          // 这里统一显示后端返回的message
         }
       } catch (error) {
         console.error('提交预约失败:', error);
-        alert('提交预约失败，请稍后重试。');
+        // 检查error.response是否存在，以获取后端返回的具体错误信息
+        const errorMessage = error.response && error.response.data && error.response.data.message 
+                             ? error.response.data.message 
+                             : '提交预约失败，请稍后重试。';
+        ElMessage.error(errorMessage);
       } finally {
         this.submitting = false;
       }
