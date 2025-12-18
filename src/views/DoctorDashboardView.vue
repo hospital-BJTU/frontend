@@ -323,10 +323,12 @@ const loadDaySlots = async (dates) => {
       const pmCancelled = !!(pm && pm.status === 'Cancelled')
       m[day].AM.exists = !!am && !amCancelled
       m[day].PM.exists = !!pm && !pmCancelled
-      m[day].AM.pending = !!(leavePendingMap.value[day] && leavePendingMap.value[day].AM)
-      m[day].PM.pending = !!(leavePendingMap.value[day] && leavePendingMap.value[day].PM)
+      const amAudit = am ? am.auditStatus : null
+      const pmAudit = pm ? pm.auditStatus : null
+      m[day].AM.pending = !!(leavePendingMap.value[day] && leavePendingMap.value[day].AM) && amAudit === 'leave_requested'
+      m[day].PM.pending = !!(leavePendingMap.value[day] && leavePendingMap.value[day].PM) && pmAudit === 'leave_requested'
       slotMap.value = { ...m }
-      await checkLeaveResultForDay(day)
+      notifyLeaveResultForDay(day, { amExists: m[day].AM.exists, pmExists: m[day].PM.exists }, { amAudit, pmAudit })
     })
     await Promise.all(tasks)
   } catch (e) {
@@ -456,27 +458,26 @@ const clearPendingStore = (day, slot) => {
   }
 }
 
-const checkLeaveResultForDay = async (day) => {
+const notifyLeaveResultForDay = (day, existsMap, auditMap) => {
   const pending = leavePendingMap.value[day] || {}
-  const checkSlot = async (slot) => {
-    if (!pending[slot]) return
-    try {
-      const res = await getDoctorQueue({ date: day, timeSlot: slot })
-      const audit = res && res.data && res.data.schedule ? res.data.schedule.auditStatus : null
-      if (audit === 'cancelled') {
-        ElMessageBox.alert(`您${day}${slot}的请假申请已通过`, '提示')
-        clearPendingStore(day, slot)
-      } else if (audit === 'approved') {
-        ElMessageBox.alert(`您${day}${slot}的请假申请被拒绝`, '提示')
-        clearPendingStore(day, slot)
-      } else {
-        // 仍在 leave_requested，暂不提示
-      }
-    } catch (e) {
-      // 忽略查询异常
+  if (pending.AM) {
+    if (!existsMap.amExists) {
+      ElMessageBox.alert(`您${day}AM的请假申请已通过`, '提示')
+      clearPendingStore(day, 'AM')
+    } else if (auditMap && auditMap.amAudit === 'approved') {
+      ElMessageBox.alert(`您${day}AM的请假申请被拒绝`, '提示')
+      clearPendingStore(day, 'AM')
     }
   }
-  await Promise.all(['AM', 'PM'].map(checkSlot))
+  if (pending.PM) {
+    if (!existsMap.pmExists) {
+      ElMessageBox.alert(`您${day}PM的请假申请已通过`, '提示')
+      clearPendingStore(day, 'PM')
+    } else if (auditMap && auditMap.pmAudit === 'approved') {
+      ElMessageBox.alert(`您${day}PM的请假申请被拒绝`, '提示')
+      clearPendingStore(day, 'PM')
+    }
+  }
 }
 </script>
 
