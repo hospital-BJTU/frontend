@@ -59,11 +59,11 @@
 </template>
 
 <script setup>
-import {
-  Menu,
-  User,
-  Cherry,
-  OfficeBuilding,
+import { 
+  Menu, 
+  User, 
+  Cherry, 
+  OfficeBuilding, 
   Document,
   Clock,
   DocumentDelete

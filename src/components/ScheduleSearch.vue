@@ -32,6 +32,16 @@
           <option value="PM">下午</option>
         </select>
       </label>
+      <label>
+        日期:
+        <el-date-picker
+          v-model="filters.date"
+          type="date"
+          placeholder="选择日期"
+          value-format="YYYY-MM-DD"
+          clearable
+        />
+      </label>
       <button @click="searchSchedules">查询</button>
     </div>
 
@@ -52,21 +62,23 @@
 <script>
 
 import request from '../api/request'; // 假设你有一个封装的request工具
-import { ElMessage, ElSelect, ElOption } from 'element-plus';
+import { ElMessage, ElSelect, ElOption, ElDatePicker } from 'element-plus';
 
 
 export default {
   name: 'ScheduleSearch',
   components: {
     ElSelect, // 注册 ElSelect 组件
-    ElOption  // 注册 ElOption 组件
+    ElOption,  // 注册 ElOption 组件
+    ElDatePicker // 注册 ElDatePicker 组件
   },
   data() {
     return {
       filters: {
         deptId: null,
         doctorId: null,
-        timeSlot: ''
+        timeSlot: '',
+        date: null // 新增日期筛选字段
       },
       schedules: [],
       selectedSchedule: null,
@@ -113,9 +125,16 @@ export default {
     },
     async searchSchedules() {
       this.searched = true;
+      // 构建查询参数
+      const params = { ...this.filters };
+      if (params.date) {
+        // El-date-picker 已经配置了 value-format="YYYY-MM-DD"，所以直接使用即可
+        // 后端通常期望YYYY-MM-DD格式的日期字符串
+        // params.date = this.$moment(params.date).format('YYYY-MM-DD'); // 如果需要手动格式化，使用moment.js或其他库
+      }
       try {
         const response = await request.get('/user/available-schedules', {
-          params: this.filters
+          params: params
         });
         if (response.code === 200) {
           this.schedules = response.data.schedules; // 提取实际的排班数组

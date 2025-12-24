@@ -29,8 +29,8 @@
                 <div class="date-cell">
                   <div class="date-number">{{ data.day.split('-')[2] }}</div>
                   <div class="slot-tags" v-if="slotMap[data.day]">
-                    <el-tag type="success" size="small" v-if="slotMap[data.day].AM" @click.stop="selectSlot(data.day,'AM')">AM</el-tag>
-                    <el-tag type="info" size="small" v-if="slotMap[data.day].PM" @click.stop="selectSlot(data.day,'PM')">PM</el-tag>
+                    <el-tag :type="slotTagType(data.day,'AM')" size="small" v-if="slotExists(data.day,'AM')" :class="slotPending(data.day,'AM') ? 'grey-tag' : ''" @click.stop="onSlotClick(data.day,'AM')">AM</el-tag>
+                    <el-tag :type="slotTagType(data.day,'PM')" size="small" v-if="slotExists(data.day,'PM')" :class="slotPending(data.day,'PM') ? 'grey-tag' : ''" @click.stop="onSlotClick(data.day,'PM')">PM</el-tag>
                   </div>
                 </div>
               </template>
@@ -139,6 +139,8 @@ const counts = ref(null)
 const queue = ref([])
 const calendarDate = ref(new Date())
 const slotMap = ref({})
+const LEAVE_PENDING_KEY = 'doctorLeavePending'
+const leavePendingMap = ref({})
 const selectedSchedule = ref(null)
 const working = ref(false)
   const leaveDialogVisible = ref(false)
@@ -297,9 +299,10 @@ const initMonth = async () => {
     const dates = res.data || []
     const map = {}
     for (const day of dates) {
-      map[day] = { AM: null, PM: null }
+      map[day] = { AM: { exists: false, pending: false }, PM: { exists: false, pending: false } }
     }
     slotMap.value = map
+    leavePendingMap.value = getPendingStore()
     await loadDaySlots(dates)
   } catch (e) {
     slotMap.value = {}
@@ -315,10 +318,17 @@ const loadDaySlots = async (dates) => {
       const am = details.find(d => d.timeSlot === 'AM') || null
       const pm = details.find(d => d.timeSlot === 'PM') || null
       const m = slotMap.value
-      if (!m[day]) m[day] = {}
-      m[day].AM = !!am
-      m[day].PM = !!pm
+      if (!m[day]) m[day] = { AM: { exists: false, pending: false }, PM: { exists: false, pending: false } }
+      const amCancelled = !!(am && am.status === 'Cancelled')
+      const pmCancelled = !!(pm && pm.status === 'Cancelled')
+      m[day].AM.exists = !!am && !amCancelled
+      m[day].PM.exists = !!pm && !pmCancelled
+      const amAudit = am ? am.auditStatus : null
+      const pmAudit = pm ? pm.auditStatus : null
+      m[day].AM.pending = !!(leavePendingMap.value[day] && leavePendingMap.value[day].AM) && amAudit === 'leave_requested'
+      m[day].PM.pending = !!(leavePendingMap.value[day] && leavePendingMap.value[day].PM) && pmAudit === 'leave_requested'
       slotMap.value = { ...m }
+      notifyLeaveResultForDay(day, { amExists: m[day].AM.exists, pmExists: m[day].PM.exists }, { amAudit, pmAudit })
     })
     await Promise.all(tasks)
   } catch (e) {
@@ -328,7 +338,7 @@ const loadDaySlots = async (dates) => {
 
 const selectSlot = async (day, slot) => {
   const m = slotMap.value
-  const has = m[day] && m[day][slot]
+  const has = m[day] && m[day][slot] && m[day][slot].exists
   if (!has) return
   date.value = day
   timeSlot.value = slot
@@ -338,6 +348,27 @@ const selectSlot = async (day, slot) => {
   } catch (e) {
     selectedSchedule.value = null
   }
+}
+
+const slotExists = (day, slot) => {
+  const s = slotMap.value[day]?.[slot]
+  return !!(s && s.exists)
+}
+
+const slotPending = (day, slot) => {
+  return !!(leavePendingMap.value[day] && leavePendingMap.value[day][slot])
+}
+
+const slotTagType = (day, slot) => {
+  return slotPending(day, slot) ? '' : 'success'
+}
+
+const onSlotClick = (day, slot) => {
+  if (slotPending(day, slot)) {
+    ElMessageBox.alert('该班次正在请假审批中', '提示')
+    return
+  }
+  selectSlot(day, slot)
 }
 
 const openLeaveDialog = () => {
@@ -352,6 +383,7 @@ const submitLeave = async () => {
     const res = await requestScheduleLeave(sid, { reason: leaveReason.value })
     ElMessage.success(res.message || '请假提交成功')
     leaveDialogVisible.value = false
+    setPendingStore(selectedSchedule.value.scheduleDate, selectedSchedule.value.timeSlot)
     await initMonth()
     selectedSchedule.value = null
   } catch (e) {
@@ -380,6 +412,73 @@ const startWork = async () => {
 watch(calendarDate, () => {
   initMonth()
 })
+
+const getPendingStore = () => {
+  try {
+    const raw = localStorage.getItem(LEAVE_PENDING_KEY)
+    if (!raw) return {}
+    const obj = JSON.parse(raw)
+    return obj && typeof obj === 'object' ? obj : {}
+  } catch (e) {
+    return {}
+  }
+}
+
+const savePendingStore = (obj) => {
+  try {
+    localStorage.setItem(LEAVE_PENDING_KEY, JSON.stringify(obj))
+  } catch (e) { void 0 }
+}
+
+const setPendingStore = (day, slot) => {
+  const obj = getPendingStore()
+  if (!obj[day]) obj[day] = {}
+  obj[day][slot] = { ts: Date.now() }
+  savePendingStore(obj)
+  leavePendingMap.value = obj
+  const s = slotMap.value[day]?.[slot]
+  if (s) {
+    s.pending = true
+    slotMap.value = { ...slotMap.value }
+  }
+}
+
+const clearPendingStore = (day, slot) => {
+  const obj = getPendingStore()
+  if (obj[day] && obj[day][slot]) {
+    delete obj[day][slot]
+    if (Object.keys(obj[day]).length === 0) delete obj[day]
+    savePendingStore(obj)
+    leavePendingMap.value = obj
+    const s = slotMap.value[day]?.[slot]
+    if (s) {
+      s.pending = false
+      slotMap.value = { ...slotMap.value }
+    }
+  }
+}
+
+const notifyLeaveResultForDay = (day, existsMap, auditMap) => {
+  const pending = leavePendingMap.value[day] || {}
+  if (pending.AM) {
+    if (!existsMap.amExists) {
+      ElMessageBox.alert(`您${day}AM的请假申请已通过`, '提示')
+      clearPendingStore(day, 'AM')
+    } else if (auditMap && auditMap.amAudit === 'approved') {
+      ElMessageBox.alert(`您${day}AM的请假申请被拒绝`, '提示')
+      clearPendingStore(day, 'AM')
+    }
+  }
+  if (pending.PM) {
+    if (!existsMap.pmExists) {
+      ElMessageBox.alert(`您${day}PM的请假申请已通过`, '提示')
+      clearPendingStore(day, 'PM')
+    } else if (auditMap && auditMap.pmAudit === 'approved') {
+      ElMessageBox.alert(`您${day}PM的请假申请被拒绝`, '提示')
+      clearPendingStore(day, 'PM')
+    }
+  }
+}
 </script>
 
 <style scoped>
@@ -434,4 +533,5 @@ watch(calendarDate, () => {
 .cal-header { display: flex; align-items: center; justify-content: space-between; }
 .month-text { font-weight: 600; }
 .header-actions { display: flex; gap: 8px; }
+.grey-tag { background-color: #e5e7eb !important; border-color: #d1d5db !important; color: #374151 !important; }
 </style>
